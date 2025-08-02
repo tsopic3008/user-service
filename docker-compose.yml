@@ -13,11 +13,7 @@ services:
       - mssql_data:/var/opt/mssql
     networks:
       - quarkus-net
-    healthcheck:
-      test: [ "CMD-SHELL", "sqlcmd -S localhost -U sa -P \"$SA_PASSWORD\" -Q 'SELECT 1'" ]
-      interval: 10s
-      retries: 10
-      start_period: 20s
+
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.1
@@ -30,25 +26,56 @@ services:
     depends_on:
       - mssql
     command:
-      - start
-      - --optimized
-      - --db-url-host=mssql
-      - --db-url-port=1433
-      - --db-url-database=keycloak
-      - --db-url-properties=encrypt=true
-      - --db-username=sa
-      - --db-password=${MSSQL_SA_PASSWORD}
-      - --hostname-url=http://localhost:8080
-      - --hostname-strict=false
-      - --http-enabled=true
-      - --spi-connections-jpa-migration-strategy=validate
+      - start-dev
     networks:
       - quarkus-net
 
-
+  tscore-app:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: tscore-app
+    ports:
+      - "8081:8081"
+    environment:
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:sqlserver://mssql:1433;databaseName=tscore;encrypt=true;trustServerCertificate=true
+      - QUARKUS_DATASOURCE_USERNAME=sa
+      - QUARKUS_DATASOURCE_PASSWORD=jASD32m423Jne3
+      - QUARKUS_OIDC_AUTH_SERVER_URL=http://keycloak:8080/realms/tscore
+      - QUARKUS_OIDC_CLIENT_ID=tscore
+      - QUARKUS_OIDC_CREDENTIALS_SECRET=MpZD6wUPrDaWcZ4nD4HQyOst7jk0X7Zf
+      - QUARKUS_OIDC_APPLICATION_TYPE=service
+      - QUARKUS_OIDC_TOKEN_ISSUER=any
+      - QUARKUS_OIDC_ROLES_SOURCE=accesstoken
+      - QUARKUS_REST_CLIENT_KEYCLOAK_AUTH_URL=http://keycloak:8080/realms/tscore/protocol/openid-connect
+      - QUARKUS_REST_CLIENT_KEYCLOAK_TOKEN_URL=http://keycloak:8080/realms/tscore/protocol/openid-connect
+      - QUARKUS_HTTP_PORT=8081
+      - QUARKUS_HTTP_CORS=true
+      - QUARKUS_HTTP_CORS_ORIGINS=http://localhost:4200
+      - QUARKUS_HTTP_CORS_METHODS=GET,POST,PUT,DELETE,OPTIONS
+      - QUARKUS_HTTP_CORS_HEADERS=accept,authorization,content-type,x-requested-with
+      - QUARKUS_LOG_LEVEL=DEBUG
+      - QUARKUS_LOG_CATEGORY__COM_TSCORE_LEVEL=DEBUG
+      - QUARKUS_LOG_CONSOLE_ENABLE=true
+      - QUARKUS_LOG_CONSOLE_FORMAT=%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n
+      - QUARKUS_HTTP_ACCESS_LOG_ENABLED=true
+      - QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY=true
+    depends_on:
+      - mssql
+      - keycloak
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - quarkus-net
 
 networks:
   quarkus-net:
+    driver: bridge
 
 volumes:
   mssql_data:
+  keycloak_data:

@@ -28,7 +28,7 @@ public class RegistrationEndpoint {
     @RestClient
     MailingClient mailingServiceClient;
 
-    private static final String KEYCLOAK_BASE_URL = "http://localhost:8080";
+    private static final String KEYCLOAK_BASE_URL = "http://keycloak:8080";
     private static final String REALM = "tscore";
 
     @POST

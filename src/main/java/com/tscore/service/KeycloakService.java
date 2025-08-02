@@ -12,7 +12,7 @@ import java.util.Map;
 public class KeycloakService {
 
     private static final String CLIENT_ID = "tscore";
-    private static final String CLIENT_SECRET = "J8ZpvHufBATvVCFmvph9SKyCoPbNd6rk";
+    private static final String CLIENT_SECRET = "MpZD6wUPrDaWcZ4nD4HQyOst7jk0X7Zf";
 
     @Inject
     @RestClient
