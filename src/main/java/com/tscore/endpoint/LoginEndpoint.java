@@ -22,7 +22,7 @@ public class LoginEndpoint {
     KeycloakAuthClient keycloakClient;
 
     static final String CLIENT_ID = "tscore";
-    static final String CLIENT_SECRET = "MpZD6wUPrDaWcZ4nD4HQyOst7jk0X7Zf";
+    static final String CLIENT_SECRET = "qwU7AIE7ufTMjGjvspVyP6G3e1AGMfQs";
 
     @POST
     public Response login(LoginRequest request) {
