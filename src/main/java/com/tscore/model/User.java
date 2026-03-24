@@ -1,30 +1,30 @@
 package com.tscore.model;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "[user]")
+@Table(name = "tscore_user")
 public class User extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+
     @Column(name = "first_name", nullable = false)
-    private String first_name;
+    private String firstName;
 
     @Column(name = "last_name", nullable = false)
-    private String last_name;
+    private String lastName;
 
     @Column(name = "city")
     private String city;
@@ -37,5 +37,4 @@ public class User extends PanacheEntityBase {
 
     @Column(name = "password", nullable = false)
     private String password;
-
 }
